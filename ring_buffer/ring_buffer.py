@@ -47,17 +47,23 @@ class RingBuffer:
         self.oldest = None
 
     def append(self, item):
-
-        self.oldest = self.storage.head
-
         if self.storage.__len__() < self.capacity:
             self.storage.add_to_tail(item)
+            self.oldest = self.storage.head
 
         else:
-            next_oldest = self.oldest.prev
-            self.storage.delete(self.oldest)
-            self.oldest = next_oldest
-            self.oldest.insert_before(item)
+            the_oldest = self.oldest
+            if the_oldest.next is not None:
+                next_oldest = the_oldest.next
+                next_oldest.insert_before(item)
+                self.storage.delete(the_oldest)
+                self.storage.length = self.capacity
+                self.oldest = next_oldest
+            else:
+                self.storage.remove_from_tail()
+                self.storage.add_to_tail(item)
+                self.oldest = self.storage.head
+
 
     def get(self):
         # Note:  This is the only [] allowed
@@ -70,7 +76,6 @@ class RingBuffer:
             current_node = current_node.next
 
         return list_buffer_contents
-
 # ----------------Stretch Goal-------------------
 
 
